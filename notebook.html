@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+    <script src="../moment-with-locales.js"></script>
+    <style>
+        html, body { height: 100%; }
+        body { margin: 0; }
+        ul { margin: 0; padding: 0; }
+        li { list-style: none; }
+        #side-notebook {
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            height: 100%;
+            overflow-y: auto;
+            position: fixed;
+            border-right: 1px solid #bbb;
+        }
+        #main-note {
+            position: relative;
+            width: 550px;
+            margin: 40px 0 50px 260px;
+            padding: 20px;
+        }
+        .note {
+            border: 1px solid #ddd;
+            width: 200px;
+            padding: 3px;
+            margin: 20px auto;
+        }
+        input { border: 1px solid #ddd; width: 250px; height: 20px; margin-bottom: 30px; font-size: 1em; }
+        textarea { border: 1px solid #ddd; width: 520px; height: 500px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+<div id="side-notebook">
+    <span>노트북</span> <button id="addBtn">+</button>
+</div>
+
+<div id="main-note">
+    <input type="text" class="noteTitle"/> <br/>
+    <textarea name="" id="" cols="30" rows="10" class="noteContent"></textarea>
+</div>
+
+<script id="notebookTemplate" type="text/template">
+    <div class="note">
+        <p><strong><%= title %></strong></p>
+        <p><%= content %></p>
+        <p><%= created_at %></p>
+    </div>
+</script>
+
+<script id="noteTemplate" type="text/template">
+    <input type="text" value="<%= title %>">
+    <span><%= created_at %></span>
+    <textarea><%= content %></textarea>
+    <button class="edit">Edit</button>
+    <button class="delete">Delete</button>
+</script>
+
+
+<script>
+    var template = function(id){
+        return _.template($('#' + id).html());
+    };
+
+    var currentNoteView = null;
+
+    var Note = Backbone.Model.extend({
+        defaults: function() {
+            return {
+                title: '제목',
+                content: '내용',
+                created_at: moment().format('YYYY-MM-DD HH:mm:ss')
+            };
+        }
+    });
+
+    var Notebook = Backbone.Collection.extend({
+        model: Note
+    });
+
+    var NotebookView = Backbone.View.extend({
+        tagName: 'ul',
+
+        initialize: function(){
+            this.listenTo(this.collection, 'add', this.addNote);
+//            this.listenTo(this.collection, 'remove', this.removeNote);
+
+        },
+
+        addNote: function(note) {
+            new NotebookNoteView({model: note}).render().$el.appendTo(this.$el);
+        },
+
+        removeNote: function() {
+            console.log('지울까...');
+        },
+
+        render: function(){
+            this.collection.each(this.addNote, this);
+
+            return this;
+        }
+    });
+
+    var NotebookNoteView = Backbone.View.extend({
+        tagName: 'li',
+
+        template: template('notebookTemplate'),
+
+        initialize: function(){
+            this.listenTo(this.model, 'destroy', this.remove);
+        },
+
+        events: {
+            'click .note'   : 'showNoteView'
+        },
+
+        remove: function() {
+            this.$el.remove();
+        },
+
+        showNoteView: function() {
+            console.log(this.model);
+            if (currentNoteView) currentNoteView.remove();
+            currentNoteView = new NoteView({
+                model: this.model
+            }).render();
+        },
+
+        render: function() {
+            this.$el.html( this.template(this.model.toJSON()));
+            return this;
+        }
+
+    });
+
+    var NoteView = Backbone.View.extend({
+        el: '#main-note',
+        template: template('noteTemplate'),
+
+        initialize: function(){
+//                this.listenTo(this.model, 'change', this.render);
+            this.listenTo(this.model, 'destroy', this.remove);
+        },
+
+        events: {
+//                'click .edit' : 'editPerson',
+            'click .delete' : 'destroyNote'
+        },
+//
+//            editPerson: function() {
+//                var newName = prompt("Please enter the new name", this.model.get('name'));
+//
+//                if (!newName) return;
+//
+//                this.model.set('name', newName);
+//            },
+//
+        destroyNote: function(){
+            this.model.destroy();
+        },
+//
+        remove: function() {
+            this.undelegateEvents(this.events);
+            this.stopListening();
+            this.$el.html('');
+        },
+//
+//            showAlert: function(){
+//                alert("You clicked me");
+//            },
+
+        render: function(){
+//            console.log(this.$el);
+            this.$el.html(this.template(this.model.toJSON()));
+            return this;
+        }
+    });
+
+    var AddNote = Backbone.View.extend({
+        events: {
+            'click #addBtn': 'add'
+        },
+
+        add: function(){
+            var newNote = new Note();
+            this.collection.add(newNote);
+        }
+    });
+
+    var notebook = new Notebook([
+        {
+            title: 'title1',
+            content: '11111111111'
+        },
+        {
+            title: 'title2',
+            content: '2222222222222222'
+        },
+        {
+            title: 'title3',
+            content: '33333'
+        }
+    ]);
+
+
+    var nv = new NotebookView({ collection: notebook });
+    nv.render().$el.appendTo('#side-notebook');
+
+    new AddNote({
+        el: $('#side-notebook'),
+        collection: notebook
+    });
+
+
+
+
+
+//    var noteView = new NoteView({model: note});
+//
+//    noteView.render().$el.appendTo('#note');
+
+</script>
+
+
+</body>
+</html>

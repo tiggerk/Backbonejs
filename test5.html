@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<script id="personTemplate" type="text/template">
+    <strong><%= name %></strong> (<%= age %>) - <%= occupation %>
+</script>
+
+
+<script>
+    var Person = Backbone.Model.extend({
+        defaults: {
+            name: 'Guest User',
+            age: 23,
+            occupation: 'worker'
+        }
+    });
+
+    var PersonView = Backbone.View.extend({
+        tagName: 'li',
+
+        template: _.template($('#personTemplate').html()),
+
+        initialize: function(){
+            this.render();
+        },
+
+        render: function(){
+            this.$el.html(this.template(this.model.toJSON()));
+        }
+    });
+
+
+    var person = new Person;
+
+    var personView = new PersonView({ model: person });
+
+    $(document.body).html(personView.el);
+
+</script>
+
+
+</body>
+</html>

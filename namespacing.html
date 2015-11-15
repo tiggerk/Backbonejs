@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<form id="addPerson" action="">
+    <input type="text" placeholder="Name of the person">
+    <input type="submit" placeholder="Add Person">
+</form>
+
+<script id="personTemplate" type="text/template">
+
+    <span><strong><%= name %></strong> (<%= age %>) - <%= occupation %></span>
+    <button class="edit">Edit</button>
+    <button class="delete">Delete</button>
+
+</script>
+<span></span>
+
+
+<script>
+    (function(){
+        window.App = {
+            Models: {},
+            Collections: {},
+            Views: {}
+        };
+
+        window.template = function(id){
+            return _.template($('#' + id).html());
+        };
+
+        App.Models.Person = Backbone.Model.extend({
+            defaults: function() {
+                return {
+                    name: 'Guest User',
+                    age: 30,
+                    occupation: 'worker',
+                    created_at: new Date()
+                };
+            }
+        });
+
+
+        App.Collections.People = Backbone.Collection.extend({
+            model: App.Models.Person   // Change here for Person Reference from App models namespace
+        });
+
+        App.Views.People = Backbone.View.extend({
+            tagName: 'ul',
+
+            initialize: function(){
+//                this.collection.on('add', this.addOne, this);
+                this.listenTo(this.collection, 'add', this.addOne);
+            },
+
+            render: function(){
+                this.collection.each(this.addOne, this);
+
+                return this;
+            },
+
+            addOne: function(person){
+                console.log('hi');
+                new App.Views.Person({ model: person }).render().$el.appendTo(this.$el);
+            }
+        });
+
+        App.Views.Person = Backbone.View.extend({
+            tagName: 'li',
+
+            template: template('personTemplate'),
+
+            initialize: function(){
+                this.listenTo(this.model, 'change', this.render);
+                this.listenTo(this.model, 'destroy', this.remove);
+//                this.model.on('change', this.render, this);
+//                this.model.on('destroy', this.remove, this);
+            },
+
+            events: {
+//                'click' : 'showAlert'
+                'click strong' : 'showAlert',
+                'click .edit' : 'editPerson',
+                'click .delete' : 'destroyPerson'
+            },
+
+            editPerson: function() {
+                var newName = prompt("Please enter the new name", this.model.get('name'));
+
+                if (!newName) return;
+
+                this.model.set('name', newName);
+            },
+
+            destroyPerson: function(){
+                this.model.destroy();
+            },
+
+            remove: function(){
+                this.$el.remove();
+            },
+
+            showAlert: function(){
+                alert("You clicked me");
+            },
+
+            render: function(){
+                this.$el.html( this.template(this.model.toJSON()));
+                return this;
+            }
+        });
+
+        App.Views.AddPerson = Backbone.View.extend({
+
+            events: {
+                'submit': 'submit'
+            },
+
+            submit: function(e){
+
+                e.preventDefault();
+
+                var newPersonName = $(e.currentTarget).find('input[type=text]').val();
+
+                var person = new App.Models.Person({name: newPersonName});
+
+                this.collection.add(person);
+
+            }
+        });
+
+        window.peopleCollection = new App.Collections.People([
+            {
+                name: 'Mohit Jain',
+                age: 26
+            },
+            {
+                name: 'Taroon Tyagi',
+                age: 25,
+                occupation: 'web designer'
+            },
+            {
+                name: 'Rahul Narang',
+                age: 26,
+                occupation: 'Java Developer'
+            }
+        ]);
+
+        new App.Views.AddPerson({
+            el: $('#addPerson'),
+            collection: peopleCollection
+        });
+
+        window.pv = new App.Views.People({ collection: peopleCollection });
+        pv.render().$el.appendTo(document.body);
+    })();
+</script>
+
+
+</body>
+</html>

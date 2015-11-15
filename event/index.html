@@ -1,0 +1,37 @@
+<html>
+<head>
+    <script src="http://backbonejs.org/test/vendor/underscore.js"></script>
+    <script src="http://backbonejs.org/test/vendor/jquery.js"></script>
+    <script src="http://backbonejs.org/docs/js/jquery.lazyload.js"></script>
+    <script src="http://backbonejs.org/test/vendor/json2.js"></script>
+    <script src="http://backbonejs.org/backbone.js"></script>
+
+</head>
+<body>
+
+<script>
+
+window.onload = function() {
+    var p = { run: function() { console.log('run'); } };
+    _.extend(p, Backbone.Events);
+
+    var j = _.extend({name: 'indong'}, Backbone.Events);
+
+//    j.on('bbang', function() {
+//        console.log(this);
+//        p.run();
+//    });
+
+    p.listenTo(j, 'bbang', function() {
+        this.run();
+    });
+
+    j.trigger('bbang');
+
+
+}
+
+</script>
+
+</body>
+</html>

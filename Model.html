@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<span></span>
+
+<script>
+
+    var user = { name: 'dahyun', age: 28 };
+
+    var backboneUser = new Backbone.Model({ name:'dahyun', age:28 });
+
+    console.log(user.name);
+    console.log(backboneUser.get('name'));
+
+    console.log(backboneUser.set('name', 'kangda'));
+
+    backboneUser.on('change', function() { console.log('변했으니 html을 바꾸자') });
+
+    backboneUser.set('age', 20);
+
+    backboneUser.on('change', function(backboneUser) { $('span').html(backboneUser.get('age')) });
+
+
+    var users = [{name: 'kang'}, {name: 'da'}, {name: 'hyun'}];
+
+    console.log(users[0].name);
+
+    var usersJson = [{name: 'kang'}, {name: 'da'}, {name: 'hyun'}];
+
+    var backboneUsers = new Backbone.Collection(usersJson);
+
+    backboneUsers.at(0).get('name');
+
+    backboneUsers.at(0);
+
+    backboneUsers.pop();
+
+
+
+
+
+
+
+
+    var Note = Backbone.Model.extend({
+
+        initialize: function(){},
+
+        author: function(){},
+
+        coordinates: function(){},
+
+        allowedToEdit: function(account){
+            return true;
+        }
+
+    });
+
+    var PrivateNote = Note.extend({
+
+        allowedToEdit: function(account) {
+            return account.owns(this);
+        }
+    });
+
+
+
+
+
+
+//    constructor / initialize
+//    new Book({
+//        title: "One Thousand and One Nights",
+//        author: "Scheherazade"
+//    });
+
+//    var Library = Backbone.Model.extend({
+//        constructor: function() {
+//            this.books = new Books();
+//            Backbone.Model.apply(this, arguments);
+//        },
+//        parse: function(data, options) {
+//            this.books.reset(data.books);
+//            return data.library;
+//        }
+//    });
+
+    var note = new Backbone.Model();
+
+    note.set({ title: "March 20", content: "In his eyes she ecipses..." });
+
+    note.set("title", "A Scandal in Bohemia");
+
+
+    var hacker = new Backbone.Model({
+        name: "<script>alert('xss')<script>"
+    });
+
+    console.log(hacker.escape('name'));
+
+    console.log(note.has("title"));
+
+
+    note.unset("title");
+
+    note.clear();
+
+
+    var Meal = Backbone.Model.extend({
+        idAttribute: "_id"
+    });
+
+    var cake = new Meal({ _id: 1, name: "Cake" });
+    console.log("Cake id: " + cake.id);
+
+
+
+
+    var Person = Backbone.Model.extend({
+        constructor: function() {
+            Backbone.Model.apply(this, arguments);
+        },
+        initialize: function(attrs) {
+        },
+        work: function() {
+        }
+    });
+
+    var User = Person.extend({
+        constructor: function(attrs, options) {
+            console.log(1, this.cid, attrs, options);
+
+//            this.color = options.color;
+
+            Person.apply(this, arguments);
+            console.log(2, this.cid, this.get('name'));
+        },
+        color: 'red',
+        initialize: function() {
+            console.log(3, 'hi!!!');
+//            Person.prototype.initialize.apply(this, arguments);
+        },
+        work: function() {
+            Person.prototype.work.apply(this, arguments);
+        }
+    }, {
+        hi: function() {
+        }
+    });
+
+    var p1 = new User({
+        name: 'indong2'
+    }, {
+        color: 'blue'
+    });
+
+    p1.work();
+    console.log(p1.color)
+
+
+    cake.attributes
+    cake.set({idid:"아이디", abcd: 1234});
+    cake.changed;
+
+
+
+    var Meal = Backbone.Model.extend({
+        defaults: {
+            "appetizer" : "caesar salad",
+            "entree" : "ravioli",
+            "dessert" : "cheesecake"
+        }
+    });
+
+    console.log("Dessert will be " + (new Meal).get('dessert'));
+
+
+
+    var artist = new Backbone.Model({
+        firstName: "Wassily",
+        lastName: "Kandinsky"
+    });
+
+    artist.set({birthday: "December 16, 1866"});
+
+    console.log(JSON.stringify(artist));
+
+
+
+    Backbone.sync = function(method, model) {
+        console.log(method + ": " + JSON.stringify(model));
+        model.id = 1;
+    };
+
+    var book = new Backbone.Model({
+        title: "The Rough Riders",
+        author: "Theodore Roosevelt"
+    });
+
+
+    book.save();
+    book.save({ author: "Teddy" });
+
+
+
+    var Chapter = Backbone.Model.extend({
+        validate: function(attrs, options) {
+            if (attrs.end < attrs.start) {
+                return "can't end before it starts";
+            }
+        }
+    });
+
+//    var one = new Chapter({
+//        title : "Chapter One: The Beginning"
+//    });
+//
+//    one.on("invalid", function(model, error) {
+//        alert(model.get("title") + " " + error);
+//    });
+//
+//    one.set({
+//        start: 15,
+//        end: 10
+//    });
+//    one.validationError
+
+
+    var one = new Chapter({
+        title : "Chapter One: The Beginning"
+    });
+
+    one.set({
+        start: 15,
+        end: 10
+    });
+
+    if (!one.isValid()) {
+        console.log(one.get("title") + " " + one.validationError);
+    }
+
+
+    var Book = Backbone.Model.extend({urlRoot : '/books'});
+
+    var solaris = new Book({id: "1083-lem-solaris"});
+
+    console.log(solaris.url());
+
+    var solaris2 = solaris.clone();
+
+    console.log(solaris2.url());
+
+
+    solaris2.isNew();
+    one.isNew();
+
+    book.on("change", function() {
+        if (book.hasChanged("author")) {
+            console.log("author 변경되었당");
+        }
+    });
+
+
+    var bill = new Backbone.Model({
+        name: "Bill Smith"
+    });
+
+    bill.on("change:name", function(model, name) {
+        console.log("Changed name from " + bill.previous("name") + " to " + name);
+    });
+
+    bill.set({name : "Bill Jones"});
+
+    book.previous("author");
+
+    book.get("author");
+
+    book.previousAttributes("author");
+
+    book.attributes;
+
+
+    var Model = Backbone.Model.extend({
+        "url": "",  // 따로 지정하지 않는 경우, collection.url/model.id로 기본 지정
+        "idAttribute" : "note_idx", // PK역할을 하는 attribute (model.id로 가져올 수 있다)
+        "default" : {   // 새로운 Model 생성시, 초기 값을 지정. fetch후 server측 data로 override.
+            "note_content": "",
+            "note_x": 0,
+            "note_y": 0,
+            "note_width": 250,
+            "note_height": 250,
+            "note_color": "#EEEE8C",
+            "note_regidate": "0000-00-00 00:00:00"
+        }
+    });
+
+
+    
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<script id="personTemplate" type="text/template">
+    <strong><%= name %></strong> (<%= age %>) - <%= occupation %>
+</script>
+<span></span>
+
+
+<script>
+
+    var Person = Backbone.Model.extend({
+        defaults: {
+            name: 'Guest User',
+            age: 30,
+            occupation: 'worker'
+        }
+    });
+
+    var PeopleCollection = Backbone.Collection.extend({
+        model: Person
+    });
+
+    var PersonView = Backbone.View.extend({
+        tagName: 'li',
+
+        template: _.template($('#personTemplate').html()),
+
+        render: function(){
+            this.$el.html(this.template(this.model.toJSON()));
+//            console.log("PersonView", this);
+            return this;
+        }
+    });
+
+    var PeopleView = Backbone.View.extend({
+        tagName: 'ul',
+
+//        initialize: function() {
+//            console.log(this.collection);
+//        },
+
+        render: function() {
+            this.collection.each(function(person){
+                var personView = new PersonView({ model:person });
+                this.$el.append(personView.render().el);
+            }, this);
+            console.log(this);
+            return this;
+        }
+    });
+
+
+    var peopleCollection = new PeopleCollection([
+        {
+            name: 'Mohit Jain',
+            age: 26
+        },
+        {
+            name: 'Taroon Tyagi',
+            age: 25,
+            occupation: 'web designer'
+        },
+        {
+            name: 'Rahul Narang',
+            age: 26,
+            occupation: 'Java Developer'
+        }
+    ]);
+
+    var peopleView = new PeopleView({ collection: peopleCollection });
+    $(document.body).append(peopleView.render().el);
+
+
+    /*var person = new Person;
+
+    var personView = new PersonView({ model: person });
+
+    var peopleCollection = new PeopleCollection();
+
+    peopleCollection.add(person);
+
+    var person2 = new Person({name: "Mohit Jain", age: 25, occupation: "Software Developer"});
+
+    var personView2 = new PersonView({model: person2});
+
+    peopleCollection.add(person2);
+
+    peopleCollection
+
+    peopleCollection.toJSON();
+
+    $(document.body).html(personView.el);*/
+
+</script>
+
+
+</body>
+</html>

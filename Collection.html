@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<span></span>
+
+<script>
+
+    var Collection = Backbone.Collection.extend({
+        "url": "/notes",
+        "model": Model, // 앞서 지정한 "Model" 구조를 개별 Model의 기본으로 가짐
+        "initialize": function(){}
+    });
+
+    var Book = Backbone.Model.extend({
+        title: "The Rough Riders",
+        author: "Theodore Roosevelt"
+    });
+//
+//
+//    var Library = Backbone.Collection.extend({
+//        model: Book
+//    });
+
+
+    var Library = Backbone.Collection.extend({
+        model: function(attrs, options) {
+            if (condition) {
+                return new PublicDocument(attrs, options);
+            } else {
+                return new PrivateDocument(attrs, options);
+            }
+        }
+    });
+
+
+//    var books = new Backbone.Collection([], {
+//        model: Book
+//    });
+
+
+    var collection = new Backbone.Collection([
+        { name: "Tim", age: 5},
+        { name: "Ida", age: 26},
+        { name: "Rob", age: 55},
+    ]);
+
+    console.log(JSON.stringify(collection));
+
+
+    var ships = new Backbone.Collection;
+
+    ships.on("add", function(ship) {
+        console.log("Ahoy " + ship.get("name") + "!");
+    });
+
+    ships.add([
+        {name: "Flying Dutchman"},
+        {name: "Black Pearl"}
+    ]);
+
+
+    var accounts = new Backbone.Collection;
+    //accounts.reset(<%= %>);
+
+
+
+    var eddie = new Backbone.Model({
+        name: "eddie"
+    });
+
+    var alex = new Backbone.Model({
+        name: "alex"
+    });
+
+    var stone = new Backbone.Model({
+        name: "stone"
+    });
+
+    var roth = new Backbone.Model({
+        name: "roth"
+    });
+
+    var hagar = new Backbone.Model({
+        name: "hagar"
+    });
+
+    var vanHalen = new Backbone.Collection([eddie, alex, stone, roth]);
+
+    vanHalen.set([eddie, alex, stone, hagar]);
+
+
+
+    console.log(vanHalen.get('c8'));
+    console.log(vanHalen.at(0));
+    console.log(vanHalen.toJSON());
+
+
+    console.log(vanHalen.push(roth));
+    console.log(vanHalen.toJSON());
+
+    console.log(vanHalen.pop());
+    console.log(vanHalen.toJSON());
+
+    console.log(vanHalen.unshift(roth));
+    console.log(vanHalen.toJSON());
+
+    console.log(vanHalen.shift());
+    console.log(vanHalen.toJSON());
+
+    console.log(vanHalen.slice(2, 4));
+
+    console.log(vanHalen.length);
+
+
+
+    var Chapter = Backbone.Model;
+    var chapters = new Backbone.Collection;
+
+    chapters.comparator = function(chapter) {
+        return chapter.get("page");
+    };
+
+    chapters.add(new Chapter({page: 9, title: "The End"}));
+    chapters.add(new Chapter({page: 5, title: "The Middle"}));
+    chapters.add(new Chapter({page: 1, title: "The Beginning"}));
+
+    console.log(chapters.pluck('title'));
+
+
+    var stooges = new Backbone.Collection([
+        {name: "Curly"},
+        {name: "Larry"},
+        {name: "Moe"}
+    ]);
+
+    var names = stooges.pluck("name");
+
+    console.log(JSON.stringify(names));
+
+
+
+
+    var friends = new Backbone.Collection([
+        {name: "Athos", job: "Musketeer"},
+        {name: "Porthos", job: "Musketeer"},
+        {name: "Aramis", job: "Musketeer"},
+        {name: "d'Artagnan", job: "Guard"},
+    ]);
+
+    var musketeers = friends.where({job: "Musketeer"});
+
+    console.log("musketeers.length => ", musketeers.length);
+
+    var firstMus = friends.findWhere({job: "Musketeer"});
+
+    console.log(JSON.stringify(firstMus));
+
+
+
+    var Notes = Backbone.Collection.extend({
+        url: '/notes'
+    });
+
+    var Notes = Backbone.Collection.extend({
+        url: function() {
+            return this.document.url() + '/notes';
+        }
+    });
+
+
+    var Tweets = Backbone.Collection.extend({
+        // The Twitter Search API returns tweets under "results".
+        parse: function(response) {
+            return response.results;
+        }
+    });
+
+    console.log(firstMus.clone());
+
+
+    Backbone.sync = function(method, model) {
+        console.log(method + ": " + model.url);
+    };
+
+    var accounts = new Backbone.Collection;
+    accounts.url = '/accounts';
+
+    accounts.fetch();
+
+    var Library = Backbone.Collection.extend({
+        model : Book
+    });
+
+    var NYPL = new Library;
+
+    var othello = NYPL.create({
+        title: "Othello",
+        author: "William Shakespeare"
+    });
+
+</script>
+
+</body>
+</html>

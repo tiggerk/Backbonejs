@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+<span class="sp">aaa</span>
+<h1>제목</h1>
+
+<script>
+
+//    var DocumentRow = Backbone.View.extend({
+//        tagName : "li",
+//
+//        className: "document-row",
+//
+//        events: {
+//            "click .icon" : "open",
+//            "click .button.edit" : "openEditDialog",
+//            "click .button.delete" : "destroy"
+//        },
+//
+//        render: function() {}
+//    });
+//
+//
+//    var doc = Document.first();
+
+    var ItemView = Backbone.View.extend({
+        tagName: 'li'
+    });
+
+    var BodyView = Backbone.View.extend({
+        el: 'body'
+    });
+
+    var item = new ItemView();
+    var body = new BodyView();
+
+    console.log(item.el + ' ' + body.el);
+
+
+    console.log(item.$el.show());
+
+    console.log(item.el.attributes);
+
+//    ui.Chapter = Backbone.View.extend({
+//        serialize : function() {
+//            return {
+//                title: this.$(".title").text(),
+//                start: this.$(".start-page").text(),
+//                end: this.$(".end-page").text()
+//            };
+//        }
+//    });
+
+
+    $('h1').after(item.$el.text('hi'));
+
+
+//    var LibraryView = Backbone.View.extend({
+//        template: _.template()
+//    });
+
+
+    var Bookmark = Backbone.View.extend({
+        template: _.template(),
+        render: function() {
+            this.$el.html(this.template(this.model.attributes));
+            return this;
+        }
+    });
+
+    item.remove();
+    // $(item.el).remove();
+
+
+
+
+
+
+</script>
+
+
+</body>
+</html>

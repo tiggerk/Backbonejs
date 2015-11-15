@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="../underscore.js"></script>
+    <script src="../jquery-1.11.2.min.js"></script>
+    <script src="../backbone.js"></script>
+</head>
+<body>
+
+<script>
+    // child view
+    var NoteView = Backbone.View.extend({
+        "tagName": "div",   // 개별 View를 wrapping할 DOM tagName 지정
+        "events": {     // .content element에 대해 contentClickHandler 실행
+            "mousedown .content": "contentClickHandler"
+        },
+        "initialize": function(options){    // new로 생성되는 시점에 실행할 부분
+            _.extend(this, options);
+            this.template = _.template($("noteViewTemplate").html());   // 개별노트의 템플릿 지정
+            this.model.view = this; // model -> view로도 접근할 수 있도록 상호참조
+            this.model.on({ // model에 대한 이벤트 등
+                "destroy": this.destroyHandler,
+            });
+            this.render();
+        },
+        "render": function(){
+            this.$el.html(this.template(this.model.toJSON()));  // 템플릿 출력
+        },
+        "contentClickHandler": function(){},
+    });
+
+
+    // parent view
+    var NoteApp = Backbone.View.extend({
+        "el": $("body"),    // 기존에 존재하는 element에 적용시킬 경우 'el'로 지정함.
+        "events": {
+            "dblclick": "createNote"
+        },
+        "initialize": function(options){
+            _.extend(this, options);
+            _.bindAll(this, "render", "append", "createNote");
+
+            this.collection = new Collection(); // 새로운 콜렉션 생성
+            this.collection.on({
+                "reset": this.render,   // 콜렉션이 새로운 데이터들로 갱신될 때(reset)
+                "add": this.append,     // 콜렉션에 새로운 데이터가 추가되었을 때
+                "remove": this.collectionRemoveHandler  // 콜렉션에 개별노트 삭제가 발생될
+            });
+
+            this.collection.fetch({ // 콜렉션에 지정된 url로 새로운 데이터를 받아와 reset.
+               reset: true
+            });
+        },
+        "render": function(){
+//            this.$el.find(".desktop").html("");
+            this.$(".desktop").html("");
+            this.collection.each(this.append);  //collection의 each method : model을 인자로 넣어 loop.
+        },
+        "append": function(model){
+            var note = new NoteView({   // 개별 입력받은 model을 넣어 새로운 node object 생성.
+                "model": model
+            });
+            this.$el.find(".desktop").append(note.$el); // note의 $el은 parent view의 영역에 append
+        },
+        "createNote": function(e){
+            var newModel = {
+                "note_x": e.clientX,
+                "note_y": e.clientY,
+                "note_zIndex": this.collection.length
+            };
+            this.collection.create(newModel, {  // 콜렉션에 새로운 Model을 추가함과 동시에 POST request.
+                success: function(model, response){
+                    model.view.contentClickHandler();
+                },
+                error: function(){}
+            })
+        },
+        "collectionRemoveHandler": function(){}
+    });
+
+
+</script>
+
+
+</body>
+</html>
